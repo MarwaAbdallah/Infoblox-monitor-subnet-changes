@@ -28,7 +28,7 @@ To generate the certificate, run the following command in the same folder where 
 certificateGeneration
 
 ```python
-openssl s_client -showcerts -connect ymr-nios.corp.securekey.com:443 </dev/null 2>/dev/null|openssl x509 -outform PEM >mycertfile.pem
+openssl s_client -showcerts -connect <IPAM-URL>:443 </dev/null 2>/dev/null|openssl x509 -outform PEM >mycertfile.pem
 print s
 ```
  
