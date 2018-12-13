@@ -56,9 +56,10 @@ domain user account created, with read-only privileges to IPAM. The account cred
 ## Scripts
 Description of the files:
 
-config.py contains the configuration needed to authenticate to IPAM, credentials are not shared in the wiki
-smail.py contains the method that sends email to the appropriate stakeholders
-DetectNewCorpSubnets.py is the main file
+* config.py contains the configuration needed to authenticate to IPAM, credentials are not shared in the wiki.
+* smail.py contains the method that sends email to the appropriate stakeholders.
+* DetectNewCorpSubnets.py is the main file.
+
 To launch the script, run :
 
 
