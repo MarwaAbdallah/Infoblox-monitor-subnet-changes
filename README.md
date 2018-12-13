@@ -16,7 +16,8 @@ When a change happens, email the log file as an attached document, to the securi
 
 ### Flow
 
-
+![GitHub Logo](/ipam-flow.JPG)
+Format: ![Alt Text](url)
 
 ## Requirements
 ### IPAM certificate
