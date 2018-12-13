@@ -29,7 +29,6 @@ certificateGeneration
 
 ```python
 openssl s_client -showcerts -connect <IPAM-URL>:443 </dev/null 2>/dev/null|openssl x509 -outform PEM >mycertfile.pem
-print s
 ```
  
 
@@ -37,7 +36,7 @@ Note, in the client, the certificate name is 'ipamCert.pem'
 
 ### Libraries :
 python 2.7
-sys
+
 
 Using pip, install:
 
