@@ -6,7 +6,7 @@ from email.MIMEBase import MIMEBase
 from email import encoders
  
 def sendemail():
-    fromaddr = "`hostname`@securekey.com"
+    fromaddr = "`hostname`@company.com" # an address used by the program to send emails
     toaddr = ["securityteam@company.com", "networkteam@company.com"] #
     msg = MIMEMultipart()
  
