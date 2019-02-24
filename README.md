@@ -3,8 +3,6 @@ Continous monitoring of corporate VLANs, using Infoblox' API: wapi
 
 ## Introduction
 ### Overview
-A corporate VLAN is a VLAN which has been labelled by one of the following attributes by the network administrator:
-('Environment' == 'Corporate')   OR   (('Environment' == 'SYSTEM Infrastructure') AND ('Site'=='Welligton 4th Floor')).
 
 The purpose of the following scripts is to :
 
