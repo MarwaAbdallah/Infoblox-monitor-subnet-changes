@@ -13,7 +13,7 @@ log any detected change. Any new change is appended to the log file gap.csv , al
 When a change happens, email the log file as an attached document, to the security engineering team and the network administrator. As a consequence, the security team will continuously be notified of any change in the corporate environment.
 
 ### Flow
-
+![Flow](Infoblox-monitor-subnet-changes/ipam-flow.JPG)
 
 ## Requirements
 ### IPAM certificate
