@@ -13,6 +13,9 @@ import config
 import smail
 import sys
  
+'''
+TO DO : cron weekly job instead of python utility 'schedule'to trigger the main function weekly
+'''
 def createCsvOutput(df):
     df.drop_duplicates(subset=['network'],keep='first',inplace=True)
     df.to_csv('corporate_subnet.csv', sep=',', encoding='utf-8',index=False)
@@ -163,12 +166,8 @@ def main():
  
     request_cookies=sessionInit(url)
     corp=querySubnets(url, "*Environment:=Corporate&_return_fields=network,extattrs",request_cookies)
-    syst_Well4=querySubnets(url, "*Environment:=Development*Site:=Quebec&_return_fields=network,extattrs",request_cookies)
-    syst_YM=querySubnets(url, "*Environment:=Development&*Site:=Quebec&_return_fields=network,extattrs",request_cookies)
-    syst=concatTwoDf(syst_Well4, syst_YM)
-    network=concatTwoDf(corp, syst)
- 
-    createCsvOutput(network)
+
+    createCsvOutput(corp)
     # before comparing previous to new corporate subnets, ensure consustency in column types
     for x in previous_result.columns:
         network[x]=network[x].astype(previous_result[x].dtypes.name)
@@ -177,7 +176,7 @@ def main():
     createCsvOutput(network)
  
  
-schedule.every().wednesday.at("13:15").do(main)
+schedule.every().wednesday.at("13:15").do(main) 
 while 1:
     schedule.run_pending()
     time.sleep(1)
