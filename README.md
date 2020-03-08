@@ -44,9 +44,9 @@ json
 time
 
 ## Security
-certificate stored,
-TLS v1.2
-domain user account created, with read-only privileges to IPAM. The account credentials are stored in the nessus server.
+Server certificate stored, to avoid MiTM attacks and server spoofing
+
+TLS v1.2 to ensure confidentiality and integrity
 
 
 ## Scripts
