@@ -1,35 +1,37 @@
 import smtplib
 import time
+import pandas
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 from email.MIMEBase import MIMEBase
 from email import encoders
- 
-def sendemail():
-    fromaddr = "`hostname`@company.com" # an address used by the program to send emails
-    toaddr = ["securityteam@company.com", "networkteam@company.com"] #
+
+def sendemail(df):
+    fromaddr = "`hostname`@company.com"
+    toaddr=["security@securekey.com","network@securekey.com"]
     msg = MIMEMultipart()
- 
+
     msg['From'] = fromaddr
     msg['To'] = ",".join(toaddr)
-    msg['Subject'] = "Change in corporate VLAN"
- 
-    body = "  You receive this email because VLAN(s) have been deleted and/or added in the last 7 days.\n\n In the attached document, the history of gaps is presented\n see the lines corresponding to today to see changes. \n\n Kindly,\n Security Engineering."
- 
-    msg.attach(MIMEText(body, 'plain'))
- 
-    file = "gap.csv"
-    attachment = open("gap.csv", "rb")
- 
-    part = MIMEBase('application', 'octet-stream')
-    part.set_payload((attachment).read())
-    encoders.encode_base64(part)
-    part.add_header('Content-Disposition', 'attachment', filename= file)
- 
-    msg.attach(part)
- 
-    server = smtplib.SMTP('<mail-server-IP@>') #, corp mail server
+    msg['Subject'] = "IPAM reports subnet change"
+
+    body1 = "  : \n\n "
+    body2= "In the attached document, the history of gaps is presented. In the below table, the change detected by the Query today.\n There have been \n\n Kindly,\n Security Engineering."
+    msgdf= """\
+<html>
+  <head></head>
+  <body>
+  **Info collected from IPAM -- Summary of changes in IPAM**
+    {0}
+  </body>
+</html>
+""".format(df.to_html(index=False))
+
+    msg.attach(MIMEText(msgdf,'html'))
+
+    server = smtplib.SMTP('Mail Server IP') #, corp mail server
     server.starttls()
+    #server.login(fromaddr, none)
     text = msg.as_string()
     server.sendmail(fromaddr, toaddr, text)
     server.quit()

@@ -1,4 +1,4 @@
-!/usr/bin/python
+#!/usr/bin/python
 # Import the required Python modules.
 import requests
 import numpy as np
@@ -7,34 +7,43 @@ import time
 import warnings
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 requests.packages.urllib3.disable_warnings()
+from itertools import tee
 import pandas as pd
 import schedule
 import config
 import smail
 import sys
- 
+import os
+
+
 '''
-TO DO : cron weekly job instead of python utility 'schedule'to trigger the main function weekly
+The following code :
+    1- Connects a user to Infoblox IPAM's wapi
+    2- Query for specific subnets, using IPAM attributes, and extensive
+    attributes that are passed as URL parameters.
+        For the subnets from Site='Chicago',
+        query is: https://<IPAM URI>/wapi/v2.7/*Site:=Chicago
+        More wapi Documentation:  https://ipam.illinois.edu/wapidoc/index.html
+    3- Extract Hosts
+
 '''
 def createCsvOutput(df):
-    df.drop_duplicates(subset=['network'],keep='first',inplace=True)
-    df.to_csv('corporate_subnet.csv', sep=',', encoding='utf-8',index=False)
- 
-def writeGap(df):
-    ''' Append the gap to gap.csv, a file containing all previous gap
-        and email the generated file to the stackholders
+    ''' Store the result in a csv file, it will be loaded next time script is run
     '''
-    df['time']=time.ctime()
-    df = df[['VLAN','network','Site','event','time']]
-    with open('gap.csv', 'a') as f:
-             (df).to_csv(f, header=False)
-    smail.sendemail()
- 
+    #its a good idea to specify an absolute path where to store the file and retrieve
+    #from in main(), specially is the execution is croned, absolute path needed
+    df.to_csv('corporate_subnet.csv', sep=',', encoding='utf-8',index=False)
+
+def writeGap(df):
+    '''Send an email
+	'''
+    smail.sendemail(df)
+
 def convertColumnType(dfnew, dfprevious):
     for x in dfprevious.columns:
         dfnew[x]=dfnew[x].astype(df1[x].dtypes.name)
     return dfnew
- 
+
 def cleanData(df):
     ''' Handling NaN values.
     TO DO: It works for empty values, but need to replace 'n/a'
@@ -42,24 +51,30 @@ def cleanData(df):
     '''
     df = df.replace(np.nan, '', regex=True)
     return df
- 
+
 def compareDataframes(dfnew, dfprevious):
     ''' compare newly created list of subnet, with the one that was stored previously. The gap is computed.
         Gap: every row in dfnew, for which the subnet value is not present in dfprevious
+        saves the new result, erasing the previous one.
     '''
- 
-    df=cleanData(dfnew)
-    df = pd.merge(dfnew, dfprevious, how='outer', indicator=True)
-    added_subnets = df[df['_merge']=='left_only'][dfnew.columns]
-    removed_subnets= df[df['_merge']=='right_only'][dfprevious.columns]
+
+    df = pd.merge(dfnew, dfprevious, on='network',how='outer', indicator=True)
+    removed_subnets= df[df['_merge']=='right_only'][df.columns]
+    added_subnets = df[df['_merge']=='left_only'][df.columns]
+
+    added_subnets.rename(columns={'Site_x': 'Site', 'VLAN_x': 'VLAN'}, inplace=True)
+    removed_subnets.rename(columns={"Site_y": 'Site', 'VLAN_y': 'VLAN'}, inplace=True)
+    added_subnets=added_subnets[['VLAN','network','Site']]
+    removed_subnets=removed_subnets[['VLAN','network','Site']]
+
     added_subnets['event']='added'
     removed_subnets['event']='removed'
- 
+
     diff=concatTwoDf(added_subnets,removed_subnets)
     if not diff.empty:
         writeGap(diff)
- 
- 
+
+
 def extractNetworksFromNetworkContainers(df, url, cookie):
     '''
      Input: 1 Network container, represented as DataFrame,
@@ -70,27 +85,33 @@ def extractNetworksFromNetworkContainers(df, url, cookie):
     for net in df['network']:
         url_param="network?network_container=" +str(net)
         dftmp=dftmp.append(request(url,url_param, cookie))
- 
+
     return dftmp
- 
- 
+
+
 def checkRequestError(r):
+    tmp=1
     if r.status_code != requests.codes.ok:
+        smail.autherror(str(r.status_code), str(r.text))
         print (r.text)
-        exit_msg = 'Error {} finding network views: {}'
-        sys.exit(exit_msg.format(r.status_code, r.reason))
- 
+        tmp=0
+        return tmp
+
+
 def setcookie(url,id,pw): # 1st connection jus to set the connection cookie
- 
+
     r = requests.get(url + 'networkview',
                      auth=(id, pw),
-                     verify='ipamCert.pem')
-    checkRequestError(r)
-    ibapauth_cookie = r.cookies['ibapauth'] # Save the authentication cookie for use in subsequent requests.
-    request_cookie = {'ibapauth': ibapauth_cookie}
-    return request_cookie
- 
- 
+                     verify=False)
+    auth=checkRequestError(r) # if auth failure, return 0
+    if auth!=0:
+        ibapauth_cookie = r.cookies['ibapauth'] # Save the authentication cookie for use in subsequent requests.
+        request_cookie = {'ibapauth': ibapauth_cookie}
+        return request_cookie
+    else:
+        return 0
+
+
 def request(url, url_param, request_cookies):
     '''
     Input: url_param: The GET parameter specifying the query;
@@ -100,18 +121,18 @@ def request(url, url_param, request_cookies):
     '''
     r = requests.get(url + url_param,
                       cookies=request_cookies,
-                     verify='ipamCert.pem')
+                     verify=False)
     checkRequestError(r)
     results = r.json()
     tmp= json.dumps(results, indent=4, sort_keys=True)
     df = pd.read_json(tmp, orient='columns')
- 
+
     return df
- 
+
 def fromJsontoDf(df):
     '''
     input: dataframe['extattrs'], column containing Json data (columns)
-    output:
+    output: dataframe without messy nested json
     '''
     if len(df)!=0:
         tmp = (pd.concat({i: pd.DataFrame(x) for i, x in df.pop('extattrs').items()})
@@ -121,8 +142,8 @@ def fromJsontoDf(df):
         tmp=pd.DataFrame(tmp)
         return tmp
     pass
- 
- 
+
+
 def concatTwoDf(dfa, dfb):
     '''
     In IPAM, corporate environment is composed of 2 smart folders, created and
@@ -131,10 +152,8 @@ def concatTwoDf(dfa, dfb):
     frames = [dfa, dfb]
     df=pd.concat(frames,ignore_index=True)
     return df
- 
- 
- 
- 
+
+
 def querySubnets(url, url_param,request_cookies):
     '''For each call from main, request IPAM for network and networkcontainer and concat them.'''
     network="network?"+url_param
@@ -148,35 +167,39 @@ def querySubnets(url, url_param,request_cookies):
     #  we extract each subnet composing the container.
     if dfContainer is not None:
         dfContainerSubnets= extractNetworksFromNetworkContainers(dfContainer, url, request_cookies)
+        print dfContainerSubnets
         df=concatTwoDf(df, dfContainerSubnets)
     return df
- 
+
 def sessionInit(url):
     ''' authenticate once, then keep session cookie'''
- 
     id = config.username # Userid with WAPI access
-    print id
     pw = config.password # Prompt for the API user password.
     request_cookies=setcookie(url, id, pw) # a First connexion, just to set the cookie
     return request_cookies
- 
-def main():
-    previous_result=pd.read_csv('corporate_subnet.csv')
-    url = config.url
- 
-    request_cookies=sessionInit(url)
-    corp=querySubnets(url, "*Environment:=Corporate&_return_fields=network,extattrs",request_cookies)
 
-    createCsvOutput(corp)
-    # before comparing previous to new corporate subnets, ensure consustency in column types
-    for x in previous_result.columns:
-        network[x]=network[x].astype(previous_result[x].dtypes.name)
- 
-    compareDataframes(network, previous_result)
-    createCsvOutput(network)
- 
- 
-schedule.every().wednesday.at("13:15").do(main) 
-while 1:
-    schedule.run_pending()
-    time.sleep(1)
+def main():
+
+    url = config.url
+    request_cookies=sessionInit(url)
+    if request_cookies!=0:
+        network=querySubnets(url, "_return_fields=network,extattrs",request_cookies)
+        network=network[['VLAN','network','Site']] # You can add as many IPAM column as you want
+        #drop duplicates on column that serves as Merge sort_keys
+        #because when network containers are used, subnets can be represented
+        #in 2 distinct rows.
+        network.drop_duplicates(subset=['network'],keep='first',inplace=True)
+
+        exists = os.path.isfile('corporate_subnet.csv')
+        if exists:
+            previous_result=pd.read_csv('corporate_subnet.csv')
+            previous_result=previous_result[['VLAN','network','Site']]
+            previous_result.drop_duplicates(subset=['network'],keep='first',inplace=True)
+            compareDataframes(network, previous_result)
+        else:
+        #1st execution serves to store for the 1st time, to be used in next executions of the script
+        createCsvOutput(network)
+    else:
+        print "auth problem"
+
+main()
