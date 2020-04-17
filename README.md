@@ -12,20 +12,12 @@ log any detected change, email stakeholders (security team, network team.....)
 
 
 ## Requirements
-### IPAM certificate
-In an effort to reduce the attack surface, and as opposed to the steps taken to access IPAM via the web browser, the following code requires IPAM to authenticate to the client, using it's certifiate issued by SecureKey.
 
-To do before running the client: save the certificate in a file, in the same folder. The certificate will be passed as a parameter in the GET queries. The current certificate, issued in 2017, is valid until 2027. Once expired, it is important to save the new one.
-
-Note, for demo ease, here the website cert is accepted
-
-### Libraries :
 python 2.7
 Using pip, install packages in requirements.txt
 
 ## Security
 Server certificate stored, to avoid MiTM attacks and server spoofing
-
 TLS v1.2 to ensure confidentiality and integrity
 
 
