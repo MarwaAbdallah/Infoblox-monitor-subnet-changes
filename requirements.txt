@@ -1,0 +1,13 @@
+certifi==2020.4.5.1
+chardet==3.0.4
+email==4.0.2
+idna==2.9
+numpy==1.16.6
+pandas==0.24.2
+pkg-resources==0.0.0
+python-dateutil==2.8.1
+pytz==2019.3
+requests==2.23.0
+schedule==0.6.0
+six==1.14.0
+urllib3==1.25.9

@@ -25,15 +25,7 @@ Note, for demo ease, here the website cert is accepted
 
 ### Libraries :
 python 2.7
-
-
-Using pip, install:
-
-pandas
-requests
-schedule
-json
-time
+Using pip, install packages in requirements.txt
 
 ## Security
 Server certificate stored, to avoid MiTM attacks and server spoofing
