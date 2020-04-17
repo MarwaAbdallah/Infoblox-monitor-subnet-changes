@@ -10,7 +10,6 @@ Query IPAM subnets, and compare to what we had the last time it was queried (ex 
 
 log any detected change, email stakeholders (security team, network team.....)
 
-When a change happens, email the log file as an attached document, to the security engineering team and the network administrator. As a consequence, the security team will continuously be notified of any change in the corporate environment.
 
 ### Flow
 ![The Flow](https://github.com/MarwaAbdallah/Infoblox-monitor-subnet-changes/blob/master/ipam-flow.JPG)
