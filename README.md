@@ -8,7 +8,7 @@ The purpose of the following scripts is to :
 
 Query IPAM subnets, and compare to what we had the last time it was queried (ex : day before if executed everyday). A change is either a 'subnet added', or a 'subnet deleted' event.
 
-log any detected change. Any new change is appended to the log file gap.csv , along with the date the event has been detected by the script.
+log any detected change, email stakeholders (security team, network team.....)
 
 When a change happens, email the log file as an attached document, to the security engineering team and the network administrator. As a consequence, the security team will continuously be notified of any change in the corporate environment.
 
