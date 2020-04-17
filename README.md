@@ -1,12 +1,12 @@
 # Infoblox-monitor-subnet-changes
-Continous monitoring of corporate VLANs, using Infoblox' API: wapi
+Continous monitoring of subnets, using Infoblox' API: wapi
 
 ## Introduction
 ### Overview
 
 The purpose of the following scripts is to :
 
-weekly scan IPAM to detect any change in the corporate environment. A change is either a 'VLAN added', or a 'VLAN deleted' event.
+Query IPAM subnets, and compare to what we had the last time it was queried (ex : day before if executed everyday). A change is either a 'subnet added', or a 'subnet deleted' event.
 
 log any detected change. Any new change is appended to the log file gap.csv , along with the date the event has been detected by the script.
 
@@ -21,15 +21,7 @@ In an effort to reduce the attack surface, and as opposed to the steps taken to 
 
 To do before running the client: save the certificate in a file, in the same folder. The certificate will be passed as a parameter in the GET queries. The current certificate, issued in 2017, is valid until 2027. Once expired, it is important to save the new one.
 
-To generate the certificate, run the following command in the same folder where the python client is stored.
-certificateGeneration
-
-```python
-openssl s_client -showcerts -connect <IPAM-URL>:443 </dev/null 2>/dev/null|openssl x509 -outform PEM >mycertfile.pem
-```
- 
-
-Note, in the client, the certificate name is 'ipamCert.pem'
+Note, for demo ease, here the website cert is accepted
 
 ### Libraries :
 python 2.7
@@ -56,8 +48,7 @@ Description of the files:
 * smail.py contains the method that sends email to the appropriate stakeholders.
 * DetectNewCorpSubnets.py is the main file.
 
-To launch the script, run :
+To launch the script, edit where appropriate (such as smail.py):
 
 
 python DetectNewCorpSubnets.py
-
