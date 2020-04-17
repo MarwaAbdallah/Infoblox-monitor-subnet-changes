@@ -11,9 +11,6 @@ Query IPAM subnets, and compare to what we had the last time it was queried (ex 
 log any detected change, email stakeholders (security team, network team.....)
 
 
-### Flow
-![The Flow](https://github.com/MarwaAbdallah/Infoblox-monitor-subnet-changes/blob/master/ipam-flow.JPG)
-
 ## Requirements
 ### IPAM certificate
 In an effort to reduce the attack surface, and as opposed to the steps taken to access IPAM via the web browser, the following code requires IPAM to authenticate to the client, using it's certifiate issued by SecureKey.
