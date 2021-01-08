@@ -8,7 +8,7 @@ from email import encoders
 
 def sendemail(df):
     fromaddr = "`hostname`@company.com"
-    toaddr=["security@securekey.com","network@securekey.com"]
+    toaddr=["security@company.com","network@company.com"]
     msg = MIMEMultipart()
 
     msg['From'] = fromaddr
