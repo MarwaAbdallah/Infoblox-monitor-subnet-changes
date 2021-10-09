@@ -24,7 +24,7 @@ The following code :
         For the subnets from Site='Chicago',
         query is: https://<IPAM URI>/wapi/v2.7/*Site:=Chicago
         More wapi Documentation:  https://ipam.illinois.edu/wapidoc/index.html
-    3- Extract Hosts
+
 
 '''
 def createCsvOutput(df):
@@ -52,15 +52,15 @@ def cleanData(df):
     df = df.replace(np.nan, '', regex=True)
     return df
 
-def compareDataframes(dfnew, dfprevious):
+def compareDataframes(new_table, previous_table):
     ''' compare newly created list of subnet, with the one that was stored previously. The gap is computed.
         Gap: every row in dfnew, for which the subnet value is not present in dfprevious
         saves the new result, erasing the previous one.
     '''
 
-    df = pd.merge(dfnew, dfprevious, on='network',how='outer', indicator=True)
-    removed_subnets= df[df['_merge']=='right_only'][df.columns]
-    added_subnets = df[df['_merge']=='left_only'][df.columns]
+    result = pd.merge(new_table, previous_table, on='network',how='outer', indicator=True)
+    removed_subnets= result[result['_merge']=='right_only'][result.columns]
+    added_subnets = result[result['_merge']=='left_only'][result.columns]
 
     added_subnets.rename(columns={'Site_x': 'Site', 'VLAN_x': 'VLAN'}, inplace=True)
     removed_subnets.rename(columns={"Site_y": 'Site', 'VLAN_y': 'VLAN'}, inplace=True)
@@ -93,9 +93,8 @@ def checkRequestError(r):
     tmp=1
     if r.status_code != requests.codes.ok:
         smail.autherror(str(r.status_code), str(r.text))
-        print (r.text)
         tmp=0
-        return tmp
+    return tmp
 
 
 def setcookie(url,id,pw): # 1st connection jus to set the connection cookie
@@ -167,7 +166,6 @@ def querySubnets(url, url_param,request_cookies):
     #  we extract each subnet composing the container.
     if dfContainer is not None:
         dfContainerSubnets= extractNetworksFromNetworkContainers(dfContainer, url, request_cookies)
-        print dfContainerSubnets
         df=concatTwoDf(df, dfContainerSubnets)
     return df
 
@@ -200,6 +198,6 @@ def main():
         #1st execution serves to store for the 1st time, to be used in next executions of the script
         createCsvOutput(network)
     else:
-        print "auth problem"
+        print "auth problem" # this is printed in the console additionally to sending an email
 
 main()

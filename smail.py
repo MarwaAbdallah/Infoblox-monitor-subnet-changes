@@ -16,7 +16,7 @@ def sendemail(df):
     msg['Subject'] = "IPAM reports subnet change"
 
     body1 = "  : \n\n "
-    body2= "In the attached document, the history of gaps is presented. In the below table, the change detected by the Query today.\n There have been \n\n Kindly,\n Security Engineering."
+    body2= "In the below table, the change detected by the Query today.\n There have been \n\n Kindly,\n Security Engineering."
     msgdf= """\
 <html>
   <head></head>
@@ -31,7 +31,7 @@ def sendemail(df):
 
     server = smtplib.SMTP('Mail Server IP') #, corp mail server
     server.starttls()
-    #server.login(fromaddr, none)
+
     text = msg.as_string()
     server.sendmail(fromaddr, toaddr, text)
     server.quit()
