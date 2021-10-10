@@ -1,6 +1,11 @@
 # Infoblox-monitor-subnet-changes
 Continous monitoring of subnets, using Infoblox' API: wapi
 
+Blog articles **Automate subnet discovery with Infoblox IPAM API - Part II**
+
+- [Part 1](https://www.marwaabdallah.com/2021/automate-subnet-discovery-with-infoblox-ipam-api-part-i/)
+- [Part 2](https://www.marwaabdallah.com/2021/automate-subnet-discovery-with-infoblox-ipam-api-part-ii/)
+
 ## Introduction
 ### Overview
 
