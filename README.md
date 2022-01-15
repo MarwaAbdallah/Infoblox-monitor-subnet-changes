@@ -11,9 +11,10 @@ Blog articles **Automate subnet discovery with Infoblox IPAM API**
 
 The purpose of the following scripts is to :
 
-Query IPAM subnets, and compare to what we had the last time it was queried (ex : day before if executed everyday). A change is either a 'subnet added', or a 'subnet deleted' event.
-
-log any detected change, email stakeholders (security team, network team.....)
+* Query IPAM subnets, and compare the retrieved list to the one from the last time the script executed (ex : day before if executed everyday)
+  * If there is a new record (not present in the output of the list previously retrieved, but present in the list that has just been collected), a  new subnet was added
+  * If a record that was present in the list obtained previosuly is no longer present, a subnet was decomissioned (not common in practice)
+* Email a list of recipients (add emails of desired recipients, such as Network or Security teams, in `smail.py`
 
 
 ## Requirements
@@ -22,8 +23,9 @@ python 2.7
 Using pip, install packages in requirements.txt
 
 ## Security
-Server certificate stored, to avoid MiTM attacks and server spoofing
-TLS v1.2 to ensure confidentiality and integrity
+The server certificate is stored, to avoid MiTM attacks and server spoofing.
+
+TLS v1.2 is used to ensure confidentiality and integrity.
 
 
 ## Scripts
@@ -33,7 +35,6 @@ Description of the files:
 * smail.py contains the method that sends email to the appropriate stakeholders.
 * DetectNewCorpSubnets.py is the main file.
 
-To launch the script, edit where appropriate (such as smail.py):
-
-
-python DetectNewCorpSubnets.py
+To launch the script, 
+* edit where appropriate (such as smail.py)
+* execute `python DetectNewCorpSubnets.py`
